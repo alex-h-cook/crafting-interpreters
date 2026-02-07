@@ -146,7 +146,7 @@ int findAtPosition(Node** head, int position) {
     }
     if (temp == NULL) {
         printf("Position outside list range.\n");
-        return;
+        return -1;
     }
     return temp->data;
 }
