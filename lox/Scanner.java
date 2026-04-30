@@ -72,6 +72,7 @@ public class Scanner {
 
             case '\n':
                 // This is why we use peek() to look for newline ending a comment instead of match(), we need to be able to come here and increment `line`
+                // QUESTION: when we break from comment scanning, the '\n'character gets skipped by advance(), no?
                 line++;
                 break;
 
