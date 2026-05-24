@@ -75,11 +75,31 @@ public class Scanner {
                 // QUESTION: when we break from comment scanning, the '\n'character gets skipped by advance(), no?
                 line++;
                 break;
-
+            
+            case '"': string(); break;
+                
             default:
                 Lox.error(line, "Unexpected character.");
                 break;
         }
+    }
+
+    private void string() {
+        // Consume characters until we hit the " that ends the string
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.");
+            return;
+        }
+
+        advance(); // Move past the closing ".
+    
+        // Trim the surrounding quotes.
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
     }
 
     private boolean match(char expected) {
@@ -100,7 +120,7 @@ public class Scanner {
     }
 
     private char advance() {
-        return source.charAt(current++);
+        return source.charAt(current++); //Increments `current` AFTER evaluating it
     }
 
     private void addToken(TokenType type) {
