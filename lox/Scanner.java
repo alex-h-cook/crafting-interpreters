@@ -93,8 +93,8 @@ public class Scanner {
 
     private char peek() {
         //QUESTION: how is this lookahead if we look at the current char, and not current+1
-        //Book says this char has not yet been consumed, but advance() returns the next character 
-        //I guess it's because peek() allows us to look at the character without processing it, where processing it means `current` is incremented past the character
+        //ANSWER: java has two types of incrementation operations, i++ and ++i
+        //i++ increments the value only AFTER evaluating the expression.
         if (isAtEnd()) return '\0';
         return source.charAt(current); //Lookahead: like advance(), but doesn't consume the character
     }
