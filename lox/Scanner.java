@@ -13,6 +13,28 @@ public class Scanner {
     private int start = 0; // Points to the first character of the lexeme being scanned
     private int current = 0; // Points to the current character being scanned 
     private int line = 1; // Allows us to produce tokens that know their location
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        // Static block executes once - when the class is loaded into memory
+        keywords = new HashMap<>();
+        keywords.put("and",     AND);
+        keywords.put("class",   CLASS);
+        keywords.put("else",    ELSE);
+        keywords.put("false",   FALSE);
+        keywords.put("for",     FOR);
+        keywords.put("fun",     FUN);
+        keywords.put("if",      IF);
+        keywords.put("nil",     NIL);
+        keywords.put("or",      OR);
+        keywords.put("print",   PRINT);
+        keywords.put("return",  RETURN);
+        keywords.put("super",   SUPER);
+        keywords.put("this",    THIS);
+        keywords.put("true",    TRUE);
+        keywords.put("var",     VAR);
+        keywords.put("while",   WHILE);
+    }
 
     Scanner(String source) {
         this.source = source;
@@ -81,11 +103,22 @@ public class Scanner {
             default:
                 if (isDigit(c)) {
                     number();
+                } else if (isAlpha(c)) {
+                    identifier();
                 } else {
                     Lox.error(line, "Unexpected character.");
                 }
                 break;
         }
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) advance();
+        // ^ Identifiers can start with only alpha characters, but afterwards can contain numbers
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null) type = IDENTIFIER; // Check against keywords (identifiers reserved by the language)
+        addToken(type);
     }
 
     private void number() {
@@ -141,6 +174,16 @@ public class Scanner {
         // Our scanner looks ahead at most two characters
         if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+                c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) isDigit(c);
     }
 
     private boolean isDigit(char c) {
