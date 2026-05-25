@@ -195,6 +195,7 @@ public class Scanner {
     }
 
     private void addToken(TokenType type) {
+        // Java doesn't have optional parameters, so we have to use overloading
         addToken(type, null);
     }
 
