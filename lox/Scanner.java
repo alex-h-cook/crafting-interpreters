@@ -83,7 +83,26 @@ public class Scanner {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd()) advance(); // For comments, keep consuming characters until we recah the line end
                 } else if (match('*')) {
-                    while !((peek() == '*' && peekNext() == '/') || isAtEnd()) advance();
+                    int comment_layer = 1; // Block comments with support for nesting
+                    while (comment_layer > 0 && !isAtEnd()) {
+                        if (peek() == '*' && peekNext() == '/') {
+                            --comment_layer;
+                            advance();
+                            advance();
+                        } else if (peek() == '/' && peekNext() == '*') {
+                            ++comment_layer;
+                            advance();
+                            advance();
+                        } else {
+                            if (peek() == '\n') line++;
+                            advance();
+                        }
+                    }
+                    if (isAtEnd() && comment_layer > 0) {
+                        Lox.error(line, "Unterminated block comment.");
+                    }
+                    // Below is my implementation for block comments without nesting support (this is wrong because it forgets to handle new lines.)
+                    // while !((peek() == '*' && peekNext() == '/') || isAtEnd()) advance();
                 } else {
                     addToken(SLASH);
                 }
@@ -97,6 +116,7 @@ public class Scanner {
             case '\n':
                 // This is why we use peek() to look for newline ending a comment instead of match(), we need to be able to come here and increment `line`
                 // QUESTION: when we break from comment scanning, the '\n'character gets skipped by advance(), no?
+                // ANSWER: it does not, peek() looks at the current character without consuming it. So we will next correctly come here to increment line.
                 line++;
                 break;
             
@@ -185,7 +205,7 @@ public class Scanner {
     }
 
     private boolean isAlphaNumeric(char c) {
-        return isAlpha(c) isDigit(c);
+        return isAlpha(c) || isDigit(c);
     }
 
     private boolean isDigit(char c) {
