@@ -6,14 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GenerateAst{
-    public static void main(String[] args) throws IoException {
+    public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.err.println("Usage: generate_ast <output directory>");
             System.exit(64);
         }
         String outputDir = args[0];
         defineAst(outputDir, "Expr", Arrays.asList(
-            "Binary     : Expr left, Token operator, expr right",
+            "Binary     : Expr left, Token operator, Expr right",
             "Grouping   : Expr expression",
             "Literal    : Object value",
             "Unary      : Token operator, Expr right"
@@ -45,8 +45,8 @@ public class GenerateAst{
     
     public static void defineType(
             PrintWriter writer, String baseName,
-            String classname, String fieldList) {
-        writer.println("    static class " + className + "extends " + baseName + " {");
+            String className, String fieldList) {
+        writer.println("    static class " + className + " extends " + baseName + " {");
 
         //Constructor.
         writer.println("        " + className + "(" + fieldList + ") {");
@@ -63,7 +63,7 @@ public class GenerateAst{
         //Fields.
         writer.println();
         for (String field : fields) {
-            writer.println("     final " + field + ";");
+            writer.println("        final " + field + ";");
         }
         
         writer.println("    }");
