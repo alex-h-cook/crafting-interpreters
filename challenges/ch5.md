@@ -7,13 +7,14 @@ expr -> expr ( "(" ( expr ("," expr)* )? ")" | "." IDENTIFIER )+
     
 Produce a grammar that matches the same language but does not use any of the notational sugar "*" and "|".
 
-Without "?", we need to write another production for the rule where the optional thing is included / not included.
-Without "|", we have to repeat the rule name each time we add another production for it.
-Without "*", we have to use recursion to represent potentially infinitely repeating productions (zero is allowed).
-Without "+", we have to use recursion to represent repeating productions (at least 1 required).
+- Without "?", we need to write another production for the rule where the optional thing is included / not included.
+- Without "|", we have to repeat the rule name each time we add another production for it.
+- Without "*", we have to use recursion to represent potentially infinitely repeating productions (zero is allowed).
+- Without "+", we have to use recursion to represent repeating productions (at least 1 required).
 
 ```
 # The challenge is in defining these rules
+
 expr -> expr ( "(" ( expr ("," expr)* )? ")" )+
     expr -> expr "(" ")"
     expr -> expr "(" expr ")"
@@ -30,14 +31,16 @@ expr -> expr ( "." IDENTIFIER )+
     expr -> expr "." IDENTIFIER "." IDENTIFIER "." IDENTIFIER
     ...
 
+
 # Stuck: how do we ensure we don't get left with hanging commas? expr-_list -> "" is not compatible with expr_list "," expr_list
 # Solution: I added extend expr_list separately
 
 # Another stuck: realised I didn't account for mixed chaining of methods and attributes. Solved below.
+```
 
+# Solution Attempt 1
 
-# My overall solution:
-
+```
 extend_expr_list -> ""
 extend_expr_list -> "," expr_list 
 expr_list -> ""
@@ -61,8 +64,35 @@ member_chain -> attribute_chain extend_member_chain
 expr -> expr member_chain 
 expr -> IDENTIFER
 expr -> NUMBER
-
 ```
+
+It's wrong because:
+- It allows double dots
+- It allows trailing commas
+- It can be simplified
+
+
+
+
+func().prop(arg).prop2
+
+### Solution Attempt 2
+extend_expr_list -> ""
+extend_expr_list -> "," expr extend_expr_list
+expr_list -> ""
+expr_list -> expr extend_expr_list
+
+member_chain -> "(" expr_list ")"
+member_chain -> "." IDENTIFIER
+member_chain -> "(" expr_list ")" member_chain
+member_chain -> "." IDENTIFIER member_chain
+
+expr -> expr member_chain
+
+expr -> IDENTIFIER
+expr -> NUMBER
+
+
 
 ### Bonus: What kind of expression does this bit of grammar encode?
 It seems to encode chained function calling and attribute/property accessing. 
